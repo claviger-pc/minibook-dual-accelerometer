@@ -4,7 +4,7 @@ In roughly sequential order:
 
 - [ ] Further testing on how tablet mode interacts with the system. In
   particular:
-    
+
     - Standby and hibernation.
 
     - Dual-booting with Windows.
@@ -17,18 +17,15 @@ In roughly sequential order:
 
 - [ ] Tune `angle-sensor` to be maximally responsive and reliable. Ensure
   coverage of extreme cases such as:
-  
+
     - Odd orientations (upside down, on its side, folded flat, etc.),
-  
+
     - Usage in motion (in a moving vehicle, on unstable surfaces, handheld,
       etc.)
 
-- [ ] Submit driver and kernel patches for review and inclusion in the mainline
-  kernel.
-
 - [ ] Rewrite `angle-sensor` in something more lightweight than Python.
 
-- [ ] Make RPM and deb packages for `angle-sensor` and supporting components.
+- [ ] Make deb packages for `angle-sensor` and supporting components.
 
 - [ ] Detect intermediate 'tent' state (hinge position past 180 degrees but not
   folded into tablet position).

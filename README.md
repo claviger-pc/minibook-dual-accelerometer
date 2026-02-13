@@ -1,51 +1,32 @@
-# N150 Fix!
-
-This is just a fork to permanently-ish hold my change to this in order to make it work with the N150 Minibook X.
-
 # Dual-accelerometer tablet-mode switching for the Chuwi MiniBook X
+
+Adapted for **Debian 13 (Trixie)** from the
+[original OpenSUSE Tumbleweed implementation](https://github.com/lyndros/minibook-dual-accelerometer)
+by [lyndros](https://github.com/lyndros), itself a fork of
+[stackeduary's original work](https://github.com/stackeduary/minibook-dual-accelerometer).
+Debian adaptation by Claude (Anthropic).
 
 ## Introduction
 
 A number of 2-in-1 convertible laptops today lack a hardware hinge-position
 sensor, and instead use a pair of accelerometers to determine the relative
 positions of the base and display. Some such laptops do this transparently in
-firmware, but others (such as my Chuwi MiniBook X) require software to
+firmware, but others (such as the Chuwi MiniBook X) require software to
 interpret the accelerometer outputs and notify the firmware appropriately. In
 the Windows 11 installation that the MiniBook X ships with, this appears to
-all be handled inside the accelerometer driver (`mxc6655angle.dll`)
+all be handled inside the accelerometer driver (`mxc6655angle.dll`).
 
-This repo is an attempt to implement a similar 'software angle sensor' for
-Linux. Since floating-point math is frowned-upon inside the Linux kernel, we
-cannot do this entirely inside a driver as in Windows. Instead, we have
-separate driver and userspace components: the kernel exposes accelerometer
-data to userspace, and provides a mechanism to notify the firmware of
-tablet-mode changes. Meanwhile, on the userspace side, a service interprets
-the accelerometer data, and notifies the driver (which in turn notifies the
+This repo implements a 'software angle sensor' for Linux. The kernel exposes
+accelerometer data to userspace, and provides a mechanism to notify the
+firmware of tablet-mode changes. A userspace service interprets the
+accelerometer data and notifies the driver (which in turn notifies the
 firmware) of any mode changes.
 
-When the driver triggers a switch into or out tablet mode, the firmware
+When the driver triggers a switch into or out of tablet mode, the firmware
 disables or enables the keyboard and touchpad, and issues an HID
 tablet-mode-switch event, just as would happen if there was a physical
 switch. Most desktop environments recognise these events, and enable or
 disable screen rotation, and change UI elements as appropriate.
-
-## Why reinvent the wheel?
-
-There already exist a couple of userspace solutions for tablet mode on the
-MiniBook X, both [manual](https://github.com/lschans/chuwi-tablet) and
-[accelerometer-based](https://github.com/petitstrawberry/minibook-support).
-However, the manual solution is Gnome-specific and does not make use of the
-accelerometers, and the accelerometer-based solution is rather complex (three
-separate daemons, and virtual input devices that intercept the built-in
-keyboard and touchpad), did not work reliably for me, and essentially
-duplicates functionality that already exists to support devices with 'real'
-tablet switches.
-
-By leveraging the MiniBook's own firmware to do the tablet-mode switching, we
-eliminate this complexity and duplication of effort - userspace sees the same
-tablet-mode-switch input events that it would if it had a 'real'
-hinge-position sensor, and the firmware handles disabling the keyboard and
-trackpad when in tablet mode without needing awkward interception of inputs.
 
 ## Status
 
@@ -53,52 +34,30 @@ trackpad when in tablet mode without needing awkward interception of inputs.
 
 While the driver and angle-sensor service are both currently functional, **I
 would consider them to be at the proof-of-concept stage**. Do **not** expect
-them to be reliable or stable (or safe) at present. I am notably bad at both
-signal-processing and trigonometry, which is basically everything that the
-angle-sensor service has to do! I would welcome any suggestions as to how to
-do a better job of it.
+them to be reliable or stable (or safe) at present.
 
-Once the driver and angle-sensor service have seen a bit more testing and
-been proven to work reliably, I would like to try to get the platform driver
-into the mainline Linux kernel, and package up the angle sensor service for
-easy installation.
+## Supported hardware
 
-This repo contains two different drivers - `platform-driver` contains my
-attempt at a proper driver for eventual inclusion in the mainline kernel.
-This driver allows both accelerometers to be detected automatically, and
-registers a platform device to which it adds a sysfs property for triggering
-tablet-mode switching. However, to do this it requires some supporting
-patches elsewhere in the kernel, so while it can be built out-of-tree, it
-isn't any use without a rebuilt kernel anyway.
-
-`hack-driver` is a quick and dirty hack that simply exposes the tablet-mode
-switching method to userspace, without the accelerometer detection feature.
-This driver can be built out-of-tree on any kernel, so while it isn't a
-complete solution, it's more immediately useful, and its lack of
-accelerometer detection can be worked around in user space.
-
-## Supported hardware and software
-
-I run this on my MiniBook X N100 under OpenSUSE Tumbleweed, and don't have the
-time or extra hardware to do much testing beyond that. I would very much
-appreciate anyone willing to test on other distros, or other similar hardware
+Tested on the Chuwi MiniBook X N100 and N150. Other similar hardware
 (e.g. the earlier N5100 MiniBook X, the 8" MiniBook, other Chuwi convertible
-laptops).
+laptops) may also work but is untested.
+
+## Prerequisites
+
+Install the required packages:
+
+```bash
+sudo apt install dkms python3 python3-numpy python3-pyudev linux-headers-$(uname -r)
+```
 
 ## How to install and use
 
-If you've got this far and haven't been scared off yet, the following steps
-should get you set up using the 'hack driver' on your existing kernel:
-
-1. Install DKMS, Python 3, and the `numpy` and `pyudev` Python packages.
+1. Install the prerequisites listed above.
 
 2. As root, run `make install`, or manually:
 
-    - Install [`hack-driver/60-sensor-chuwi.rules`](udev/60-sensor-chuwi.rules) into
-      `/etc/udev/rules.d`.
-
-    - Install [`hack-driver/chuwi-ltsm-hack.rules`](udev/60-sensor-chuwi.rules) into
-      `/etc/udev/rules.d`.
+    - Build and install the `chuwi-ltsm-hack` kernel module by running
+      `dkms install hack-driver` in this directory.
 
     - Install [`angle-sensor-service/angle-sensor.py`](angle-sensor-service/angle-sensor.py)
       to `/usr/local/sbin/angle-sensor` with execute permissions.
@@ -106,59 +65,28 @@ should get you set up using the 'hack driver' on your existing kernel:
     - Install [`angle-sensor-service/chuwi-tablet-control.sh`](angle-sensor-service/chuwi-tablet-control.sh)
       to `/usr/local/sbin/chuwi-tablet-control` with execute permissions.
 
-    - Install [`angle-sensor-service/angle-sensor.sysconfig`](angle-sensor-service/angle-sensor.sysconfig)
-      to `/etc/sysconfig/angle-sensor`.
+    - Install [`angle-sensor-service/angle-sensor.default`](angle-sensor-service/angle-sensor.default)
+      to `/etc/default/angle-sensor`.
 
     - Install [`angle-sensor-service/angle-sensor.service`](angle-sensor-service/angle-sensor.service)
       to `/etc/systemd/system/angle-sensor.service`.
 
-    - Build and install the `chuwi-ltsm-hack` kernel module by running 
-      `dkms install hack-driver` in this directory.
+3. Enable and start the service:
+
+    ```bash
+    sudo systemctl enable --now angle-sensor.service
+    ```
 
 Running `make uninstall` will uninstall everything and (hopefully) bring your
 system back to how it was before.
 
 ## Software info
 
-### [Platform Driver](platform-driver/)
-
-#### [Kernel patch](platform-driver/0001-platform-x86-support-for-out-of-tree-MDA6655-dual-ac.patch)
-
-While the dual-accelerometer driver is buildable out-of-tree, supporting changes
-are required in the kernel:
-
-`drivers/acpi/scan.c`: Add `MDA6655` to list of device IDs ignored during device
-enumeration. This is necessary to allow our driver to instantiate both
-accelerometers specified in its hardware resources, instead of one. Note that
-this gets built into the kernel itself, rather than a module (otherwise we could
-just build and load modified versions of of the `mxc4005` and `intel-hid`
-modules rather than rebuilding the whole kernel).
-
-`drivers/iio/accel/mxc4005.c`: Remove `MDA6655` from ACPI ID list. The change
-above renders it redundant.
-
-`drivers/platform/x86/intel/hid.c`: Add MiniBook X product and vendor IDs to
-`VGBS` method allowlist. This allows the MiniBook X's firmware to send
-tablet-state HID events.
-
-#### [`chuwi-dual-accel` kernel module](platform-driver/chuwi-dual-accel.c)
-
-The `chuwi-dual-accel` module is a platform driver that matches the `MDA6655`
-device ID. It instantiates two `mxc4005` IIO accelerometer devices, named
-`MDA6655-mxc4005.display` and `MDA6655-mxc4005.base`, and creates a write-only
-sysfs property named `chuwi_dual_accel_tablet_mode` triggers the `LTSM` ACPI
-method - write a single character '`1`' to this property to enter tablet mode,
-'`0`' to enter laptop mode (any following characters, and characters other that
-'`0`' and '`1`', are ignored).
-
-As a safety measure (since keyboard inputs are disabled in tablet mode), the
-driver forces a transition to laptop mode when it is loaded and unloaded.
-
 ### [Hack driver](hack-driver/)
 
 The `chuwi-ltsm-hack` module simply adds a `chuwi_ltsm_hack` sysfs file to
-`/sys/bus/acpi/MDA6655:00`, that triggers the `LTSM` ACPI method in the same
-way as the `chuwi-dual-accel` driver.
+`/sys/bus/acpi/MDA6655:00`, that triggers the `LTSM` ACPI method to switch
+between laptop and tablet modes.
 
 The included udev rule takes care of adding the second accelerometer and
 loading the hack driver when the first accelerometer is detected, and a
@@ -200,14 +128,14 @@ This state is intended to represent when the hinge is open further than 180
 degrees but not fully folded back into 'tablet' position, allowing the laptop to
 stand vertically in a portrait orientation.
 
-### [`chuwi-tablet-control`](chuwi-tablet-control/chuwi-tablet-control.sh)
+### [`chuwi-tablet-control`](angle-sensor-service/chuwi-tablet-control.sh)
 
 `chuwi-tablet-control` is a simple shell script, designed to be called by
 `angle-sensor`, to set the tablet state. It takes a single argument, which can
 be one of `CLOSED`, `LAPTOP`, `TENT`, or `TABLET`, and writes `0` or `1` to
-`/sys/devices/platform/MDA6655:00/chuwi_dual_accel_tablet_mode` as appropriate.
+the appropriate sysfs file.
 
-States are translated to `chuwi_dual_accel_tablet_mode` writes as follows:
+States are translated to writes as follows:
 
 | State     | Value written | Comment
 |-----------|---------------|--------
@@ -290,7 +218,7 @@ Device (_SB)
         Name (_UID, One)  // _UID: Unique ID
         Name (_DEP, Package (0x02)  // _DEP: Dependencies
         {
-            ^PC00.I2C0, 
+            ^PC00.I2C0,
             ^PC00.I2C1
         })
         Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
