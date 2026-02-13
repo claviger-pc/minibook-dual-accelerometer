@@ -1,0 +1,16 @@
+[Unit]
+Description=Chuwi MiniBook rotation daemon
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+
+[Service]
+EnvironmentFile=/etc/default/minibook-dual-accelerometer
+ExecStart=/usr/sbin/angle-sensor --interval $INTERVAL \
+    --threshold $THRESHOLD --hysteresis $HYSTERESIS \
+    --tilt-threshold $TILT_THRESHOLD --jerk-threshold $JERK_THRESHOLD \
+    $COMMAND
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

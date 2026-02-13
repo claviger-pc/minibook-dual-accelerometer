@@ -1,0 +1,13 @@
+Source: minibook-dual-accelerometer
+Section: misc
+Priority: optional
+Maintainer: Petrus Claviger <noreply@example.com>
+Build-Depends: debhelper-compat (= 13), dh-dkms
+
+Package: minibook-dual-accelerometer
+Architecture: all
+Depends: dkms, linux-headers-amd64, python3, python3-numpy, python3-pyudev
+Description: Dual accelerometer support for Chuwi MiniBook N150
+ Provides a DKMS kernel module (chuwi-ltsm-hack) that exposes both
+ accelerometers on the Chuwi MiniBook, plus a userspace daemon that
+ computes the hinge angle and toggles tablet mode accordingly.

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+
+# Reload udev rules so sensor rules take effect
+udevadm control --reload-rules || true
+
+# Reload intel-hid to pick up modprobe config
+if lsmod | grep -q intel_hid; then
+    rmmod intel-hid || true
+    modprobe intel-hid || true
+fi

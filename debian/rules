@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with dkms
+
+override_dh_auto_build:
+override_dh_auto_install:
+override_dh_auto_test:
+override_dh_auto_clean:
+
+override_dh_install:
+	dh_install
+	# Strip .py / .sh extensions from executables
+	mv debian/minibook-dual-accelerometer/usr/sbin/angle-sensor.py \
+	   debian/minibook-dual-accelerometer/usr/sbin/angle-sensor
+	mv debian/minibook-dual-accelerometer/usr/sbin/chuwi-tablet-control.sh \
+	   debian/minibook-dual-accelerometer/usr/sbin/chuwi-tablet-control
+
+override_dh_dkms:
+	dh_dkms -V 0.0.1

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+# Unload the hack module before DKMS removes it
+if lsmod | grep -q chuwi_ltsm_hack; then
+    rmmod chuwi-ltsm-hack || true
+fi
+
+#DEBHELPER#

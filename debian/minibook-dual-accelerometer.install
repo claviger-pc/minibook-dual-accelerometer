@@ -1,0 +1,8 @@
+hack-driver/chuwi-ltsm-hack.c usr/src/chuwi-ltsm-hack-0.0.1/
+hack-driver/Kbuild usr/src/chuwi-ltsm-hack-0.0.1/
+hack-driver/Makefile usr/src/chuwi-ltsm-hack-0.0.1/
+hack-driver/dkms.conf usr/src/chuwi-ltsm-hack-0.0.1/
+angle-sensor-service/angle-sensor.py usr/sbin/
+angle-sensor-service/chuwi-tablet-control.sh usr/sbin/
+hack-driver/60-sensor-chuwi.rules etc/udev/rules.d/
+hack-driver/chuwi-ltsm-hack.conf etc/modprobe.d/
