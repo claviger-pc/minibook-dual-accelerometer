@@ -50,6 +50,22 @@ sudo apt install dkms python3 python3-numpy python3-pyudev linux-headers-$(uname
 
 ## How to install and use
 
+### Option 1: Install from .deb package (recommended)
+
+Download the latest `.deb` from
+[GitHub Releases](https://github.com/claviger-pc/minibook-dual-accelerometer/releases)
+and install it:
+
+```bash
+sudo apt install ./minibook-dual-accelerometer_*_all.deb
+```
+
+This handles all dependencies (including kernel headers), installs the DKMS
+module, udev rules, and systemd service automatically. The DKMS module will
+rebuild automatically on kernel upgrades.
+
+### Option 2: Manual installation
+
 1. Install the prerequisites listed above.
 
 2. As root, run `make install`, or manually:
@@ -78,8 +94,14 @@ sudo apt install dkms python3 python3-numpy python3-pyudev linux-headers-$(uname
 Running `make uninstall` will uninstall everything and (hopefully) bring your
 system back to how it was before.
 
-**Note:** After a kernel update, you may need to reinstall the kernel headers
-before reinstalling:
+To uninstall the `.deb` package:
+
+```bash
+sudo apt remove minibook-dual-accelerometer
+```
+
+**Note (manual install only):** After a kernel update, you may need to
+reinstall the kernel headers before reinstalling:
 
 ```bash
 sudo apt install linux-headers-$(uname -r)
