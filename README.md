@@ -38,8 +38,8 @@ them to be reliable or stable (or safe) at present.
 
 ## Supported hardware
 
-Tested on the Chuwi MiniBook X N100 and N150. Other similar hardware
-(e.g. the earlier N5100 MiniBook X, the 8" MiniBook, other Chuwi convertible
+Tested on the Chuwi MiniBook X N150. Other similar hardware
+(e.g. the N5100 MiniBook X, the 8" MiniBook, other Chuwi convertible
 laptops) may also work but is untested.
 
 ## Prerequisites
@@ -197,7 +197,7 @@ fault.
 
 ### DSDT
 
-The relevant bits from a disassembly of my MiniBook X N100's DSDT are below.
+The relevant bits from a disassembly of the MiniBook X's DSDT are below.
 Note the two `I2cSerialBusV2` resources for the two accelerometers, and the
 `LTSM` method that updates the HID switch state and generates 'standard'
 tablet-mode and laptop-mode events.
