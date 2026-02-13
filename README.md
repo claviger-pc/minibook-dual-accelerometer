@@ -38,9 +38,7 @@ them to be reliable or stable (or safe) at present.
 
 ## Supported hardware
 
-Tested on the Chuwi MiniBook X N150. Other similar hardware
-(e.g. the 8" MiniBook, other Chuwi convertible laptops) may also work but is
-untested.
+Tested on the Chuwi MiniBook X N150.
 
 ## Prerequisites
 
