@@ -1,0 +1,26 @@
+name: Build and Release .deb
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y debhelper dh-dkms
+
+      - name: Build .deb package
+        run: dpkg-buildpackage -us -uc -b
+
+      - name: Upload .deb to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ../*.deb
