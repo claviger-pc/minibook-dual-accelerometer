@@ -219,13 +219,12 @@ class Tablet:
             # Otherwise, switch between tablet and laptop state based on
             # calculated hinge angle. TODO: detect 'tent' mode
             if self.tablet_state != TabletState.TABLET:
-                if angle_within(self.hinge_angle, 0, self.threshold):
+                if abs(self.hinge_angle) <= self.threshold:
                     return TabletState.TABLET
                 else:
                     return TabletState.LAPTOP
             else:
-                if angle_within(self.hinge_angle, 0, self.threshold +
-                                self.hysteresis):
+                if abs(self.hinge_angle) <= self.threshold + self.hysteresis:
                     return TabletState.TABLET
                 else:
                     return TabletState.LAPTOP

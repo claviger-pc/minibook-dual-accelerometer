@@ -25,4 +25,4 @@ uninstall:
 	-rmmod intel-hid
 	-modprobe intel-hid
 	-rmmod chuwi-ltsm-hack
-	-dkms remove chuwi-ltsm-hack/0.0.1
+	-dkms remove chuwi-ltsm-hack/0.0.1 --all

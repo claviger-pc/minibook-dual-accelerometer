@@ -80,6 +80,13 @@ sudo apt install dkms python3 python3-numpy python3-pyudev linux-headers-$(uname
 Running `make uninstall` will uninstall everything and (hopefully) bring your
 system back to how it was before.
 
+**Note:** After a kernel update, you may need to reinstall the kernel headers
+before reinstalling:
+
+```bash
+sudo apt install linux-headers-$(uname -r)
+```
+
 ## Software info
 
 ### [Hack driver](hack-driver/)
